@@ -71,9 +71,12 @@ var (
     maxFreq           int            // number of frequencies (EU=5, US=51)
     maxChan           int            // number of defined (=actual) channels
     receiveWindow     int            // timespan in ms for receiving a message
+    transmitterId     int            // which transmitter LRB
+    
 
     // per channel (index is actChan[ch])
     chLastVisits      [maxTr]int64   // last visit times in UTC-nanoseconds
+    chLastTime        [maxTr]int64   // index for times per channel to check that it is 2.5 secs LRB
     chNextVisits      [maxTr]int64   // next visit times (future) in UTC-nanoseconds
     chTotMsgs         [maxTr]int     // total received messages since startup
     chAlarmCnts       [maxTr]int     // numbers of missed-counts-in-a-row
@@ -324,7 +327,12 @@ func main() {
             //     1: We've missed a message.
             //     2: We've waited for sync and nothing has happened for a
             //        full cycle of the pattern.
-
+            //
+            // This section of code which looks at testFreq is to help tune the SDR to the Davis.
+            // One uses the test frequencies and goes through by increments to see if the SDR
+            // comes back with data
+            // used as ./rtldavis -startfreq 868000000 -endfreq 868600000 -stepfreq 10000
+            // or ./rtldavis -tf US -startfreq 911386814 -endfreq 911388139 -stepfreq 265
             if testFreq {
                 if testNumber > 0 {
                     log.Printf("TESTFREQ %d: Frequency %d: NOK", testNumber, testChannelFreq)
@@ -389,7 +397,17 @@ func main() {
                     continue  // read next message
                 }
                 curTime = time.Now().UnixNano()
+                currentTime := time.Now().UTC().UnixNano()  // use currentTime for the check to see if the next message is less than 2 seconds LRB
+                transmitterId := msgIdToChan[int(msg.ID)]  // Get the transmitter ID LRB
                 //log.Printf("msg.Data: %02X", msg.Data)
+                // Check if the time difference between the current and previous visits for this transmitter is less than 2 seconds
+                if currentTime-chLastTime[transmitterId] < 2*time.Second.Nanoseconds() {
+                    log.Printf("time between reads < 2 seconds, skipping %02X ", msg.Data) // most likely duplicate but could be unknown type
+                    // log.Printf("%02X msg:Data", msg.Data)  with this statement in rtldavis.py prints DATAPacket: unrecognized data:
+                    continue  // read next message
+                 }
+
+                chLastTime[transmitterId] = currentTime  // Set for next read
                 // Keep track of duplicate packets
                 seen := string(msg.Data)
                 if seen == lastRecMsg {
