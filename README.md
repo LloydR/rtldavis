@@ -16,19 +16,19 @@ There is another installation by Vince Skahan in [https://github.com/weewx-contr
 
 #### Install packages needed for BME280
 
-as per [https://gitlab.com/mfraz74/bme280wx/](as per https://gitlab.com/mfraz74/bme280wx/)
+as per [https://gitlab.com/mfraz74/bme280wx/](https://gitlab.com/mfraz74/bme280wx/)
 
 Enable I2C: Run sudo raspi-config and navigate to Interfacing Options > I2C > Enable.
 
 install RPi.bme280 smbus2
 
-sudo apt update
+    sudo apt update
 
-sudo apt install python3-bme280 python3-smbus2
+    sudo apt install python3-bme280 python3-smbus2
 
 This requires a weewx program installed
 
-weectl extension install [https://gitlab.com/mfraz74/bme280wx/-/archive/master/bme280wx-master.zip](https://gitlab.com/mfraz74/bme280wx/-/archive/master/bme280wx-master.zip)
+    weectl extension install [https://gitlab.com/mfraz74/bme280wx/-/archive/master/bme280wx-master.zip](https://gitlab.com/mfraz74/bme280wx/-/archive/master/bme280wx-master.zip)
 
 Weectl should come back with   
 1. Saving installer file to /etc/weewx/bin/user/installer/bme280wx
@@ -38,7 +38,7 @@ Weectl should come back with
    
 #### Install packages needed for rtldavis
 
-sudo apt install golang git cmake librtlsdr-dev
+    sudo apt install golang git cmake librtlsdr-dev
 
 #### Setup Udev Rules
 find the vendor id and product id for your SDR dongle
