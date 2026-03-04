@@ -204,6 +204,10 @@ I ran into a CRC16 error
         3. File "/etc/weewx/bin/user/rtldavis.py", line 995, 616, 628, 525, 609
         4. "/usr/share/weewx/weewx/crc16.py", line 49 
 
+The above comes from 
+
+        sudo journalctl -u weewx --lines 80 
+        
 This is how I "fixed", it don't know how many of the "fixes" were necessary
 
 In file /etc/weewx/bin/user/rtldavis.py I changed the 
